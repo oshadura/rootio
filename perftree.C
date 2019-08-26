@@ -1,16 +1,15 @@
-void perf_tree(){ 
-  TFile* rfile = TFile::Open("test.root");
+void perftree(){
+  TFile* rfile = TFile::Open("nanoad_ttjet_404.root");
   TTree* rtree = (TTree*)rfile->Get("Events");
   Long64_t nentries = rtree->GetEntries();
-  TFile* wfile = TFile::Open("copytree.root","RECREATE");
-  TTree* wtree = rtree->CloneTree(0); 
-  TTreePerfStats* ioperf = new TTreePerfStats("Events", wtree);
-  for(Long64_t i; i<nentries; ++i){
-      rtree->GetEntry(i);
-      wtree->Fill();
+  TTreePerfStats ps("ioperf",rtree);
+  std::cout << "Total Entries: " << nentries << std::endl;
+  for (Long64_t i=0; i<nentries ; i++){
+    if (i%100 == 0 ){
+      std::cout << "... Processed " << i << " entries ..." << std::endl;
+    }
+    rtree->GetEntry(i);
   }
-  wtree->Write();
-  ioperf->Print();
-  wfile->Close();
-  rfile->Close();
+  ps.SaveAs("perf_404.root");
+  ps.Print();
 }
